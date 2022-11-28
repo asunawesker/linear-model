@@ -33,19 +33,28 @@ import requests
 SERVER_URL = 'https://linear-model-service-asunawesker.cloud.okteto.net/v1/models/linear-model:predict'
 
 def main():
-  sys_arguments = len(sys.argv)
-  valid_arguments = []
 
-  for i in range(1, sys_arguments):
-    try:
-      valid_arguments.append([float(sys.argv[i])])
-    except:
-      continue
+  if len(sys.argv) == 1:
+    print ("Need to input at least one value")
+  else:
+    sys_arguments = len(sys.argv)
+    valid_arguments = []
 
-  print("\nValid arguments: " + str(valid_arguments))
+    for i in range(1, sys_arguments):
+      try:
+        valid_arguments.append([float(sys.argv[i])])
+      except:
+        continue
 
-  predict_request = '{"instances" : '+str(valid_arguments)+' }'
+    if not len(valid_arguments):
+      print("\nNone of the arguments is valid. The request won't proceed.")
+    else:
+      print("\nValid arguments: " + str(valid_arguments))
 
+      predict_request = '{"instances" : '+str(valid_arguments)+' }'
+      linear_model_request(predict_request)
+
+def linear_model_request(predict_request):
   # Send few requests to warm-up the model.
   for _ in range(3):
     response = requests.post(SERVER_URL, data=predict_request)
@@ -62,7 +71,6 @@ def main():
 
   print('\nPrediction class: {}, avg latency: {} ms'.format(
       np.argmax(prediction), (total_time * 1000)))
-
 
 if __name__ == '__main__':
   main()
